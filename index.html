@@ -101,6 +101,28 @@
                             <div id="ig-bar" class="bg-blue-500 h-full w-0 transition-all duration-300"></div>
                         </div>
                     </div>
+
+                    <!-- X / Twitter Limit (280) -->
+                    <div class="space-y-1 pt-2">
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-300">X / Twitter (280)</span>
+                            <span id="x-count" class="text-slate-400">0 / 280</span>
+                        </div>
+                        <div class="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="280">
+                            <div id="x-bar" class="bg-sky-400 h-full w-0 transition-all duration-300"></div>
+                        </div>
+                    </div>
+
+                    <!-- LinkedIn Limit (3000) -->
+                    <div class="space-y-1 pt-2">
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-300">LinkedIn (3,000)</span>
+                            <span id="linkedin-count" class="text-slate-400">0 / 3000</span>
+                        </div>
+                        <div class="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="3000">
+                            <div id="linkedin-bar" class="bg-blue-600 h-full w-0 transition-all duration-300"></div>
+                        </div>
+                    </div>
                 </section>
             </div>
         </main>
@@ -157,11 +179,23 @@
         const converterToHK = OpenCC.Converter({ from: 'cn', to: 'hk' });
         const converterToSim = OpenCC.Converter({ from: 'hk', to: 'cn' });
 
+        // Twitter Weighted Count Helper (Chinese/Full-width = 2, English/Half-width = 1)
+        function getTwitterWeightedLength(text) {
+            let count = 0;
+            for (let i = 0; i < text.length; i++) {
+                if (text.charCodeAt(i) > 0x7F) {
+                    count += 2;
+                } else {
+                    count += 1;
+                }
+            }
+            return count;
+        }
+
         function setLanguage(lang) {
             currentLang = lang;
             const dict = i18n[lang];
 
-            // ISO Standard HTML lang tag update
             document.documentElement.lang = lang === 'zh' ? 'zh-HK' : 'en';
 
             document.getElementById('app-title').innerText = dict.title;
@@ -206,7 +240,7 @@
                 document.getElementById('stat-read-time').innerText = `${mins} ${dict.unitMin} ${secs} ${dict.unitSec}`;
             }
 
-            // Threads Bar
+            // Threads Bar (500)
             const threadsPercent = Math.min((totalCount / 500) * 100, 100);
             document.getElementById('threads-count').innerText = `${totalCount} / 500`;
             const threadsBar = document.getElementById('threads-bar');
@@ -214,13 +248,30 @@
             threadsBar.parentElement.setAttribute('aria-valuenow', totalCount);
             threadsBar.className = totalCount > 500 ? 'bg-rose-500 h-full' : 'bg-emerald-500 h-full';
 
-            // Instagram Bar
+            // Instagram Bar (2,200)
             const igPercent = Math.min((totalCount / 2200) * 100, 100);
             document.getElementById('ig-count').innerText = `${totalCount} / 2200`;
             const igBar = document.getElementById('ig-bar');
             igBar.style.width = `${igPercent}%`;
             igBar.parentElement.setAttribute('aria-valuenow', totalCount);
             igBar.className = totalCount > 2200 ? 'bg-rose-500 h-full' : 'bg-blue-500 h-full';
+
+            // X / Twitter Bar (280 Weighted)
+            const xWeightedCount = getTwitterWeightedLength(text);
+            const xPercent = Math.min((xWeightedCount / 280) * 100, 100);
+            document.getElementById('x-count').innerText = `${xWeightedCount} / 280`;
+            const xBar = document.getElementById('x-bar');
+            xBar.style.width = `${xPercent}%`;
+            xBar.parentElement.setAttribute('aria-valuenow', xWeightedCount);
+            xBar.className = xWeightedCount > 280 ? 'bg-rose-500 h-full' : 'bg-sky-400 h-full';
+
+            // LinkedIn Bar (3,000)
+            const linkedinPercent = Math.min((totalCount / 3000) * 100, 100);
+            document.getElementById('linkedin-count').innerText = `${totalCount} / 3000`;
+            const linkedinBar = document.getElementById('linkedin-bar');
+            linkedinBar.style.width = `${linkedinPercent}%`;
+            linkedinBar.parentElement.setAttribute('aria-valuenow', totalCount);
+            linkedinBar.className = totalCount > 3000 ? 'bg-rose-500 h-full' : 'bg-blue-600 h-full';
         }
 
         // Listeners
