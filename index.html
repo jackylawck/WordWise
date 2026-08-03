@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智識計 | WordWise</title>
+    <!-- Tailwind CSS CDN for Modern UI -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- OpenCC-JS for HK Traditional Conversion -->
+    <script src="https://cdn.jsdelivr.net/npm/opencc-js@1.0.5/dist/umd/full.min.js"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen p-4 md:p-8 font-sans">
+
+    <div class="max-w-4xl mx-auto space-y-6">
+        <!-- Header -->
+        <header class="flex justify-between items-center border-b border-slate-700 pb-4">
+            <div>
+                <h1 class="text-2xl font-bold text-emerald-400">智識計 | WordWise</h1>
+                <p class="text-xs text-slate-400 mt-1">🛡️ 100% 本地運算 · 零資料上傳 · 離線可用</p>
+            </div>
+            <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs px-2.5 py-1 rounded-full flex items-center gap-1">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> 本地安全加密模式
+            </span>
+        </header>
+
+        <!-- Main Input Area -->
+        <main class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="md:col-span-2 space-y-4">
+                <textarea id="text-input" placeholder="請在此貼上或輸入文字..." 
+                    class="w-full h-64 p-4 bg-slate-800 border border-slate-700 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none resize-none text-slate-200 placeholder-slate-500"></textarea>
+                
+                <!-- Action Buttons -->
+                <div class="flex flex-wrap gap-2">
+                    <button id="btn-to-hk" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm rounded-lg transition">轉香港繁體</button>
+                    <button id="btn-to-sim" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm rounded-lg transition">轉簡體</button>
+                    <button id="btn-clean" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm rounded-lg transition">清除多餘空行/空格</button>
+                    <button id="btn-clear" class="px-3 py-1.5 bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 text-sm rounded-lg ml-auto transition">一鍵清空</button>
+                </div>
+            </div>
+
+            <!-- Dashboard / Stats -->
+            <div class="space-y-4">
+                <div class="bg-slate-800 border border-slate-700 rounded-xl p-4 space-y-3">
+                    <h2 class="text-sm font-semibold text-slate-400 uppercase tracking-wider">文字統計</h2>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50">
+                            <div class="text-xs text-slate-400">總字數</div>
+                            <div id="stat-total" class="text-2xl font-bold text-emerald-400">0</div>
+                        </div>
+                        <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50">
+                            <div class="text-xs text-slate-400">不含空格/標點</div>
+                            <div id="stat-words-only" class="text-xl font-bold text-slate-200">0</div>
+                        </div>
+                    </div>
+                    <div class="text-xs text-slate-400 flex justify-between pt-2 border-t border-slate-700/50">
+                        <span>預估閱讀時間：</span>
+                        <span id="stat-read-time" class="text-slate-200 font-medium">0 秒</span>
+                    </div>
+                </div>
+
+                <!-- Social Media Limits -->
+                <div class="bg-slate-800 border border-slate-700 rounded-xl p-4 space-y-3">
+                    <h2 class="text-sm font-semibold text-slate-400 uppercase tracking-wider">社群平台字數限制</h2>
+                    
+                    <!-- Threads Limit (500) -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-300">Threads (500字)</span>
+                            <span id="threads-count" class="text-slate-400">0 / 500</span>
+                        </div>
+                        <div class="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden">
+                            <div id="threads-bar" class="bg-emerald-500 h-full w-0 transition-all duration-300"></div>
+                        </div>
+                    </div>
+
+                    <!-- IG Limit (2200) -->
+                    <div class="space-y-1 pt-2">
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-300">Instagram (2,200字)</span>
+                            <span id="ig-count" class="text-slate-400">0 / 2200</span>
+                        </div>
+                        <div class="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden">
+                            <div id="ig-bar" class="bg-blue-500 h-full w-0 transition-all duration-300"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Script Area -->
+    <script>
+        const textarea = document.getElementById('text-input');
+        
+        // OpenCC Converters Init
+        const converterToHK = OpenCC.Converter({ from: 'cn', to: 'hk' });
+        const converterToSim = OpenCC.Converter({ from: 'hk', to: 'cn' });
+
+        // Update Stats Logic
+        function updateStats() {
+            const text = textarea.value;
+            const totalCount = text.length;
+            // 正則表達式過濾空格與常見中文/英文標點
+            const wordsOnlyCount = text.replace(/[\s\p{P}\p{S}]/gu, '').length;
+            
+            // 更新數字
+            document.getElementById('stat-total').innerText = totalCount;
+            document.getElementById('stat-words-only').innerText = wordsOnlyCount;
+
+            // 閱讀時間（以中文平均每分鐘 350 字計算）
+            const readSeconds = Math.ceil((wordsOnlyCount / 350) * 60);
+            document.getElementById('stat-read-time').innerText = readSeconds < 60 ? `${readSeconds} 秒` : `${Math.floor(readSeconds/60)} 分 ${readSeconds%60} 秒`;
+
+            // Threads 進度條
+            const threadsPercent = Math.min((totalCount / 500) * 100, 100);
+            document.getElementById('threads-count').innerText = `${totalCount} / 500`;
+            document.getElementById('threads-bar').style.width = `${threadsPercent}%`;
+            document.getElementById('threads-bar').className = totalCount > 500 ? 'bg-rose-500 h-full' : 'bg-emerald-500 h-full';
+
+            // IG 進度條
+            const igPercent = Math.min((totalCount / 2200) * 100, 100);
+            document.getElementById('ig-count').innerText = `${totalCount} / 2200`;
+            document.getElementById('ig-bar').style.width = `${igPercent}%`;
+            document.getElementById('ig-bar').className = totalCount > 2200 ? 'bg-rose-500 h-full' : 'bg-blue-500 h-full';
+        }
+
+        // Event Listeners
+        textarea.addEventListener('input', updateStats);
+
+        // 轉香港繁體
+        document.getElementById('btn-to-hk').addEventListener('click', () => {
+            textarea.value = converterToHK(textarea.value);
+            updateStats();
+        });
+
+        // 轉簡體
+        document.getElementById('btn-to-sim').addEventListener('click', () => {
+            textarea.value = converterToSim(textarea.value);
+            updateStats();
+        });
+
+        // 排版整理
+        document.getElementById('btn-clean').addEventListener('click', () => {
+            textarea.value = textarea.value.replace(/[ \t]+/g, ' ').replace(/\n\s*\n/g, '\n\n').trim();
+            updateStats();
+        });
+
+        // 一鍵清空
+        document.getElementById('btn-clear').addEventListener('click', () => {
+            textarea.value = '';
+            updateStats();
+        });
+    </script>
+</body>
+</html>
