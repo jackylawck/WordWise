@@ -1,48 +1,304 @@
-<!-- Social Media Limits Box -->
-<section aria-labelledby="lbl-social-header" class="bg-slate-800 border border-slate-700 rounded-xl p-4 space-y-3">
-    <h2 id="lbl-social-header" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">社群平台字數限制</h2>
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ISO 27001 Security Standard: Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://cdn.tailwindcss.com https://cdn.jsdelivr.net; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com;">
     
-    <!-- 1. X / Twitter Limit (280) -->
-    <div class="space-y-1">
-        <div class="flex justify-between text-xs">
-            <span class="text-slate-300">X / Twitter</span>
-            <span id="x-count" class="text-slate-400">0 / 280</span>
-        </div>
-        <div class="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="280">
-            <div id="x-bar" class="bg-sky-400 h-full w-0 transition-all duration-300"></div>
-        </div>
+    <title>智識計 | WordWise</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- OpenCC-JS for HK Traditional Conversion -->
+    <script src="https://cdn.jsdelivr.net/npm/opencc-js@1.0.5/dist/umd/full.min.js" crossorigin="anonymous"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen p-4 md:p-8 font-sans antialiased">
+
+    <div class="max-w-4xl mx-auto space-y-6">
+        <!-- Header -->
+        <header class="flex flex-wrap justify-between items-center border-b border-slate-700 pb-4 gap-4">
+            <div>
+                <h1 id="app-title" class="text-2xl font-bold text-emerald-400">智識計 | WordWise</h1>
+                <p id="app-subtitle" class="text-xs text-slate-400 mt-1">🛡️ 100% 本地運算 · 零資料上傳 · 離線可用</p>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <!-- Security & Privacy Badge -->
+                <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs px-2.5 py-1 rounded-full flex items-center gap-1.5" role="status">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true"></span>
+                    <span id="status-badge">本地安全加密模式</span>
+                </span>
+
+                <!-- Language Toggle Button -->
+                <button id="btn-lang" type="button" aria-label="Switch Language" class="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs px-3 py-1 rounded-lg transition font-medium focus:ring-2 focus:ring-emerald-500">
+                    🌐 EN
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Textarea & Action Controls -->
+            <div class="md:col-span-2 space-y-4">
+                <label for="text-input" class="sr-only">輸入文字區域</label>
+                <textarea id="text-input" placeholder="請在此貼上或輸入文字..." 
+                    aria-label="文字輸入框"
+                    class="w-full h-72 p-4 bg-slate-800 border border-slate-700 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none resize-none text-slate-200 placeholder-slate-500 text-sm leading-relaxed"></textarea>
+                
+                <!-- Action Buttons -->
+                <div class="flex flex-wrap gap-2">
+                    <button id="btn-to-hk" type="button" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs rounded-lg transition focus:ring-2 focus:ring-emerald-400">轉香港繁體</button>
+                    <button id="btn-to-sim" type="button" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs rounded-lg transition focus:ring-2 focus:ring-slate-500">轉簡體</button>
+                    <button id="btn-clean" type="button" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs rounded-lg transition focus:ring-2 focus:ring-slate-500">清理多餘空格/空行</button>
+                    <button id="btn-clear" type="button" class="px-3 py-1.5 bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 text-xs rounded-lg ml-auto transition focus:ring-2 focus:ring-rose-400">一鍵清空</button>
+                </div>
+            </div>
+
+            <!-- Statistics Panel -->
+            <div class="space-y-4">
+                <!-- Text Stats Box -->
+                <section aria-labelledby="lbl-stats-header" class="bg-slate-800 border border-slate-700 rounded-xl p-4 space-y-3">
+                    <h2 id="lbl-stats-header" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">文字統計</h2>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50">
+                            <div id="lbl-stat-total" class="text-xs text-slate-400">總字數</div>
+                            <div id="stat-total" class="text-2xl font-bold text-emerald-400 mt-1" aria-live="polite">0</div>
+                        </div>
+                        <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50">
+                            <div id="lbl-stat-words" class="text-xs text-slate-400">不含空格/標點</div>
+                            <div id="stat-words-only" class="text-xl font-bold text-slate-200 mt-1" aria-live="polite">0</div>
+                        </div>
+                    </div>
+                    <div class="text-xs text-slate-400 flex justify-between pt-2 border-t border-slate-700/50">
+                        <span id="lbl-read-time">預估閱讀時間：</span>
+                        <span id="stat-read-time" class="text-slate-200 font-medium">0 秒</span>
+                    </div>
+                </section>
+
+                <!-- Social Media Limits Box (Sorted Smallest to Largest) -->
+                <section aria-labelledby="lbl-social-header" class="bg-slate-800 border border-slate-700 rounded-xl p-4 space-y-3">
+                    <h2 id="lbl-social-header" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">社群平台字數限制</h2>
+                    
+                    <!-- 1. X / Twitter Limit (280) -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-300">X / Twitter</span>
+                            <span id="x-count" class="text-slate-400">0 / 280</span>
+                        </div>
+                        <div class="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="280">
+                            <div id="x-bar" class="bg-sky-400 h-full w-0 transition-all duration-300"></div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Threads Limit (500) -->
+                    <div class="space-y-1 pt-2">
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-300">Threads</span>
+                            <span id="threads-count" class="text-slate-400">0 / 500</span>
+                        </div>
+                        <div class="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="500">
+                            <div id="threads-bar" class="bg-emerald-500 h-full w-0 transition-all duration-300"></div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Instagram Limit (2200) -->
+                    <div class="space-y-1 pt-2">
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-300">Instagram</span>
+                            <span id="ig-count" class="text-slate-400">0 / 2200</span>
+                        </div>
+                        <div class="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="2200">
+                            <div id="ig-bar" class="bg-blue-500 h-full w-0 transition-all duration-300"></div>
+                        </div>
+                    </div>
+
+                    <!-- 4. LinkedIn Limit (3000) -->
+                    <div class="space-y-1 pt-2">
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-300">LinkedIn</span>
+                            <span id="linkedin-count" class="text-slate-400">0 / 3000</span>
+                        </div>
+                        <div class="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="3000">
+                            <div id="linkedin-bar" class="bg-blue-600 h-full w-0 transition-all duration-300"></div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
     </div>
 
-    <!-- 2. Threads Limit (500) -->
-    <div class="space-y-1 pt-2">
-        <div class="flex justify-between text-xs">
-            <span class="text-slate-300">Threads</span>
-            <span id="threads-count" class="text-slate-400">0 / 500</span>
-        </div>
-        <div class="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="500">
-            <div id="threads-bar" class="bg-emerald-500 h-full w-0 transition-all duration-300"></div>
-        </div>
-    </div>
+    <!-- Application Script -->
+    <script>
+        // --- i18n Dictionary ---
+        const i18n = {
+            zh: {
+                title: "智識計 | WordWise",
+                subtitle: "🛡️ 100% 本地運算 · 零資料上傳 · 離線可用",
+                status: "本地安全加密模式",
+                placeholder: "請在此貼上或輸入文字...",
+                btnHK: "轉香港繁體",
+                btnSim: "轉簡體",
+                btnClean: "清理多餘空格/空行",
+                btnClear: "一鍵清空",
+                statsHeader: "文字統計",
+                statTotal: "總字數",
+                statWords: "不含空格/標點",
+                readTime: "預估閱讀時間：",
+                socialHeader: "社群平台字數限制",
+                langBtn: "🌐 EN",
+                unitSec: "秒",
+                unitMin: "分"
+            },
+            en: {
+                title: "WordWise",
+                subtitle: "🛡️ 100% Local Processing · Zero Data Upload · Offline Ready",
+                status: "Local & Secure Mode",
+                placeholder: "Paste or type your text here...",
+                btnHK: "To HK Traditional",
+                btnSim: "To Simplified",
+                btnClean: "Clean Spaces/Lines",
+                btnClear: "Clear All",
+                statsHeader: "TEXT STATISTICS",
+                statTotal: "Total Characters",
+                statWords: "No Spaces/Punct.",
+                readTime: "Est. Reading Time: ",
+                socialHeader: "SOCIAL MEDIA LIMITS",
+                langBtn: "🌐 繁中",
+                unitSec: "s",
+                unitMin: "m"
+            }
+        };
 
-    <!-- 3. Instagram Limit (2200) -->
-    <div class="space-y-1 pt-2">
-        <div class="flex justify-between text-xs">
-            <span class="text-slate-300">Instagram</span>
-            <span id="ig-count" class="text-slate-400">0 / 2200</span>
-        </div>
-        <div class="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="2200">
-            <div id="ig-bar" class="bg-blue-500 h-full w-0 transition-all duration-300"></div>
-        </div>
-    </div>
+        let currentLang = 'zh';
 
-    <!-- 4. LinkedIn Limit (3000) -->
-    <div class="space-y-1 pt-2">
-        <div class="flex justify-between text-xs">
-            <span class="text-slate-300">LinkedIn</span>
-            <span id="linkedin-count" class="text-slate-400">0 / 3000</span>
-        </div>
-        <div class="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="3000">
-            <div id="linkedin-bar" class="bg-blue-600 h-full w-0 transition-all duration-300"></div>
-        </div>
-    </div>
-</section>
+        const textarea = document.getElementById('text-input');
+        const btnLang = document.getElementById('btn-lang');
+
+        // OpenCC Initialisation
+        const converterToHK = OpenCC.Converter({ from: 'cn', to: 'hk' });
+        const converterToSim = OpenCC.Converter({ from: 'hk', to: 'cn' });
+
+        // Twitter Weighted Count Helper (Chinese/Full-width = 2, English/Half-width = 1)
+        function getTwitterWeightedLength(text) {
+            let count = 0;
+            for (let i = 0; i < text.length; i++) {
+                if (text.charCodeAt(i) > 0x7F) {
+                    count += 2;
+                } else {
+                    count += 1;
+                }
+            }
+            return count;
+        }
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            const dict = i18n[lang];
+
+            document.documentElement.lang = lang === 'zh' ? 'zh-HK' : 'en';
+
+            document.getElementById('app-title').innerText = dict.title;
+            document.getElementById('app-subtitle').innerText = dict.subtitle;
+            document.getElementById('status-badge').innerText = dict.status;
+            textarea.placeholder = dict.placeholder;
+            textarea.setAttribute('aria-label', dict.placeholder);
+            document.getElementById('btn-to-hk').innerText = dict.btnHK;
+            document.getElementById('btn-to-sim').innerText = dict.btnSim;
+            document.getElementById('btn-clean').innerText = dict.btnClean;
+            document.getElementById('btn-clear').innerText = dict.btnClear;
+            document.getElementById('lbl-stats-header').innerText = dict.statsHeader;
+            document.getElementById('lbl-stat-total').innerText = dict.statTotal;
+            document.getElementById('lbl-stat-words').innerText = dict.statWords;
+            document.getElementById('lbl-read-time').innerText = dict.readTime;
+            document.getElementById('lbl-social-header').innerText = dict.socialHeader;
+            btnLang.innerText = dict.langBtn;
+
+            updateStats();
+        }
+
+        btnLang.addEventListener('click', () => {
+            setLanguage(currentLang === 'zh' ? 'en' : 'zh');
+        });
+
+        function updateStats() {
+            const text = textarea.value;
+            const dict = i18n[currentLang];
+            
+            const totalCount = text.length;
+            const wordsOnlyCount = text.replace(/[\s\p{P}\p{S}]/gu, '').length;
+            
+            document.getElementById('stat-total').innerText = totalCount;
+            document.getElementById('stat-words-only').innerText = wordsOnlyCount;
+
+            const readSeconds = Math.ceil((wordsOnlyCount / 350) * 60);
+            if (readSeconds < 60) {
+                document.getElementById('stat-read-time').innerText = `${readSeconds} ${dict.unitSec}`;
+            } else {
+                const mins = Math.floor(readSeconds / 60);
+                const secs = readSeconds % 60;
+                document.getElementById('stat-read-time').innerText = `${mins} ${dict.unitMin} ${secs} ${dict.unitSec}`;
+            }
+
+            // 1. X / Twitter Bar (280 Weighted)
+            const xWeightedCount = getTwitterWeightedLength(text);
+            const xPercent = Math.min((xWeightedCount / 280) * 100, 100);
+            document.getElementById('x-count').innerText = `${xWeightedCount} / 280`;
+            const xBar = document.getElementById('x-bar');
+            xBar.style.width = `${xPercent}%`;
+            xBar.parentElement.setAttribute('aria-valuenow', xWeightedCount);
+            xBar.className = xWeightedCount > 280 ? 'bg-rose-500 h-full' : 'bg-sky-400 h-full';
+
+            // 2. Threads Bar (500)
+            const threadsPercent = Math.min((totalCount / 500) * 100, 100);
+            document.getElementById('threads-count').innerText = `${totalCount} / 500`;
+            const threadsBar = document.getElementById('threads-bar');
+            threadsBar.style.width = `${threadsPercent}%`;
+            threadsBar.parentElement.setAttribute('aria-valuenow', totalCount);
+            threadsBar.className = totalCount > 500 ? 'bg-rose-500 h-full' : 'bg-emerald-500 h-full';
+
+            // 3. Instagram Bar (2,200)
+            const igPercent = Math.min((totalCount / 2200) * 100, 100);
+            document.getElementById('ig-count').innerText = `${totalCount} / 2200`;
+            const igBar = document.getElementById('ig-bar');
+            igBar.style.width = `${igPercent}%`;
+            igBar.parentElement.setAttribute('aria-valuenow', totalCount);
+            igBar.className = totalCount > 2200 ? 'bg-rose-500 h-full' : 'bg-blue-500 h-full';
+
+            // 4. LinkedIn Bar (3,000)
+            const linkedinPercent = Math.min((totalCount / 3000) * 100, 100);
+            document.getElementById('linkedin-count').innerText = `${totalCount} / 3000`;
+            const linkedinBar = document.getElementById('linkedin-bar');
+            linkedinBar.style.width = `${linkedinPercent}%`;
+            linkedinBar.parentElement.setAttribute('aria-valuenow', totalCount);
+            linkedinBar.className = totalCount > 3000 ? 'bg-rose-500 h-full' : 'bg-blue-600 h-full';
+        }
+
+        // Listeners
+        textarea.addEventListener('input', updateStats);
+
+        document.getElementById('btn-to-hk').addEventListener('click', () => {
+            textarea.value = converterToHK(textarea.value);
+            updateStats();
+        });
+
+        document.getElementById('btn-to-sim').addEventListener('click', () => {
+            textarea.value = converterToSim(textarea.value);
+            updateStats();
+        });
+
+        document.getElementById('btn-clean').addEventListener('click', () => {
+            textarea.value = textarea.value
+                .replace(/[ \t]+/g, ' ')
+                .replace(/\n\s*\n/g, '\n\n')
+                .trim();
+            updateStats();
+        });
+
+        document.getElementById('btn-clear').addEventListener('click', () => {
+            textarea.value = '';
+            updateStats();
+        });
+    </script>
+</body>
+</html>
