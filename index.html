@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>智識計 | WordWise</title>
-    <!-- Tailwind CSS CDN for Modern UI -->
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- OpenCC-JS for HK Traditional Conversion -->
     <script src="https://cdn.jsdelivr.net/npm/opencc-js@1.0.5/dist/umd/full.min.js"></script>
@@ -13,59 +13,71 @@
 
     <div class="max-w-4xl mx-auto space-y-6">
         <!-- Header -->
-        <header class="flex justify-between items-center border-b border-slate-700 pb-4">
+        <header class="flex flex-wrap justify-between items-center border-b border-slate-700 pb-4 gap-4">
             <div>
-                <h1 class="text-2xl font-bold text-emerald-400">智識計 | WordWise</h1>
-                <p class="text-xs text-slate-400 mt-1">🛡️ 100% 本地運算 · 零資料上傳 · 離線可用</p>
+                <h1 id="app-title" class="text-2xl font-bold text-emerald-400">智識計 | WordWise</h1>
+                <p id="app-subtitle" class="text-xs text-slate-400 mt-1">🛡️ 100% 本地運算 · 零資料上傳 · 離線可用</p>
             </div>
-            <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs px-2.5 py-1 rounded-full flex items-center gap-1">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> 本地安全加密模式
-            </span>
+            
+            <div class="flex items-center gap-3">
+                <!-- Status Badge -->
+                <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs px-2.5 py-1 rounded-full flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span id="status-badge">本地安全加密模式</span>
+                </span>
+
+                <!-- Language Toggle Button -->
+                <button id="btn-lang" class="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs px-3 py-1 rounded-lg transition font-medium">
+                    🌐 EN
+                </button>
+            </div>
         </header>
 
-        <!-- Main Input Area -->
+        <!-- Main Content Area -->
         <main class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Textarea & Action Controls -->
             <div class="md:col-span-2 space-y-4">
                 <textarea id="text-input" placeholder="請在此貼上或輸入文字..." 
-                    class="w-full h-64 p-4 bg-slate-800 border border-slate-700 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none resize-none text-slate-200 placeholder-slate-500"></textarea>
+                    class="w-full h-72 p-4 bg-slate-800 border border-slate-700 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none resize-none text-slate-200 placeholder-slate-500 text-sm leading-relaxed"></textarea>
                 
                 <!-- Action Buttons -->
                 <div class="flex flex-wrap gap-2">
-                    <button id="btn-to-hk" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm rounded-lg transition">轉香港繁體</button>
-                    <button id="btn-to-sim" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm rounded-lg transition">轉簡體</button>
-                    <button id="btn-clean" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm rounded-lg transition">清除多餘空行/空格</button>
-                    <button id="btn-clear" class="px-3 py-1.5 bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 text-sm rounded-lg ml-auto transition">一鍵清空</button>
+                    <button id="btn-to-hk" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs rounded-lg transition">轉香港繁體</button>
+                    <button id="btn-to-sim" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs rounded-lg transition">轉簡體</button>
+                    <button id="btn-clean" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs rounded-lg transition">清理多餘空格/空行</button>
+                    <button id="btn-clear" class="px-3 py-1.5 bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 text-xs rounded-lg ml-auto transition">一鍵清空</button>
                 </div>
             </div>
 
-            <!-- Dashboard / Stats -->
+            <!-- Statistics Panel -->
             <div class="space-y-4">
+                <!-- Text Stats Box -->
                 <div class="bg-slate-800 border border-slate-700 rounded-xl p-4 space-y-3">
-                    <h2 class="text-sm font-semibold text-slate-400 uppercase tracking-wider">文字統計</h2>
-                    <div class="grid grid-cols-2 gap-4">
+                    <h2 id="lbl-stats-header" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">文字統計</h2>
+                    <div class="grid grid-cols-2 gap-3">
                         <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50">
-                            <div class="text-xs text-slate-400">總字數</div>
-                            <div id="stat-total" class="text-2xl font-bold text-emerald-400">0</div>
+                            <div id="lbl-stat-total" class="text-xs text-slate-400">總字數</div>
+                            <div id="stat-total" class="text-2xl font-bold text-emerald-400 mt-1">0</div>
                         </div>
                         <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50">
-                            <div class="text-xs text-slate-400">不含空格/標點</div>
-                            <div id="stat-words-only" class="text-xl font-bold text-slate-200">0</div>
+                            <div id="lbl-stat-words" class="text-xs text-slate-400">不含空格/標點</div>
+                            <div id="stat-words-only" class="text-xl font-bold text-slate-200 mt-1">0</div>
                         </div>
                     </div>
                     <div class="text-xs text-slate-400 flex justify-between pt-2 border-t border-slate-700/50">
-                        <span>預估閱讀時間：</span>
+                        <span id="lbl-read-time">預估閱讀時間：</span>
                         <span id="stat-read-time" class="text-slate-200 font-medium">0 秒</span>
                     </div>
                 </div>
 
-                <!-- Social Media Limits -->
+                <!-- Social Media Limits Box -->
                 <div class="bg-slate-800 border border-slate-700 rounded-xl p-4 space-y-3">
-                    <h2 class="text-sm font-semibold text-slate-400 uppercase tracking-wider">社群平台字數限制</h2>
+                    <h2 id="lbl-social-header" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">社群平台字數限制</h2>
                     
                     <!-- Threads Limit (500) -->
                     <div class="space-y-1">
                         <div class="flex justify-between text-xs">
-                            <span class="text-slate-300">Threads (500字)</span>
+                            <span class="text-slate-300">Threads (500)</span>
                             <span id="threads-count" class="text-slate-400">0 / 500</span>
                         </div>
                         <div class="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden">
@@ -73,10 +85,10 @@
                         </div>
                     </div>
 
-                    <!-- IG Limit (2200) -->
+                    <!-- Instagram Limit (2200) -->
                     <div class="space-y-1 pt-2">
                         <div class="flex justify-between text-xs">
-                            <span class="text-slate-300">Instagram (2,200字)</span>
+                            <span class="text-slate-300">Instagram (2,200)</span>
                             <span id="ig-count" class="text-slate-400">0 / 2200</span>
                         </div>
                         <div class="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden">
@@ -88,64 +100,141 @@
         </main>
     </div>
 
-    <!-- Script Area -->
+    <!-- Application Script -->
     <script>
+        // --- i18n Dictionary ---
+        const i18n = {
+            zh: {
+                title: "智識計 | WordWise",
+                subtitle: "🛡️ 100% 本地運算 · 零資料上傳 · 離線可用",
+                status: "本地安全加密模式",
+                placeholder: "請在此貼上或輸入文字...",
+                btnHK: "轉香港繁體",
+                btnSim: "轉簡體",
+                btnClean: "清理多餘空格/空行",
+                btnClear: "一鍵清空",
+                statsHeader: "文字統計",
+                statTotal: "總字數",
+                statWords: "不含空格/標點",
+                readTime: "預估閱讀時間：",
+                socialHeader: "社群平台字數限制",
+                langBtn: "🌐 EN",
+                unitSec: "秒",
+                unitMin: "分"
+            },
+            en: {
+                title: "WordWise",
+                subtitle: "🛡️ 100% Local Processing · Zero Data Upload · Offline Ready",
+                status: "Local & Secure Mode",
+                placeholder: "Paste or type your text here...",
+                btnHK: "To HK Traditional",
+                btnSim: "To Simplified",
+                btnClean: "Clean Spaces/Lines",
+                btnClear: "Clear All",
+                statsHeader: "TEXT STATISTICS",
+                statTotal: "Total Characters",
+                statWords: "No Spaces/Punct.",
+                readTime: "Est. Reading Time: ",
+                socialHeader: "SOCIAL MEDIA LIMITS",
+                langBtn: "🌐 繁中",
+                unitSec: "s",
+                unitMin: "m"
+            }
+        };
+
+        let currentLang = 'zh';
+
+        // --- DOM Elements ---
         const textarea = document.getElementById('text-input');
-        
-        // OpenCC Converters Init
+        const btnLang = document.getElementById('btn-lang');
+
+        // --- OpenCC Converter Initialisation ---
         const converterToHK = OpenCC.Converter({ from: 'cn', to: 'hk' });
         const converterToSim = OpenCC.Converter({ from: 'hk', to: 'cn' });
 
-        // Update Stats Logic
+        // --- Language Toggle Logic ---
+        function setLanguage(lang) {
+            currentLang = lang;
+            const dict = i18n[lang];
+
+            document.getElementById('app-title').innerText = dict.title;
+            document.getElementById('app-subtitle').innerText = dict.subtitle;
+            document.getElementById('status-badge').innerText = dict.status;
+            textarea.placeholder = dict.placeholder;
+            document.getElementById('btn-to-hk').innerText = dict.btnHK;
+            document.getElementById('btn-to-sim').innerText = dict.btnSim;
+            document.getElementById('btn-clean').innerText = dict.btnClean;
+            document.getElementById('btn-clear').innerText = dict.btnClear;
+            document.getElementById('lbl-stats-header').innerText = dict.statsHeader;
+            document.getElementById('lbl-stat-total').innerText = dict.statTotal;
+            document.getElementById('lbl-stat-words').innerText = dict.statWords;
+            document.getElementById('lbl-read-time').innerText = dict.readTime;
+            document.getElementById('lbl-social-header').innerText = dict.socialHeader;
+            btnLang.innerText = dict.langBtn;
+
+            updateStats();
+        }
+
+        btnLang.addEventListener('click', () => {
+            setLanguage(currentLang === 'zh' ? 'en' : 'zh');
+        });
+
+        // --- Core Statistics & Calculations ---
         function updateStats() {
             const text = textarea.value;
+            const dict = i18n[currentLang];
+            
             const totalCount = text.length;
-            // 正則表達式過濾空格與常見中文/英文標點
+            // Regex to exclude whitespace & unicode punctuation
             const wordsOnlyCount = text.replace(/[\s\p{P}\p{S}]/gu, '').length;
             
-            // 更新數字
             document.getElementById('stat-total').innerText = totalCount;
             document.getElementById('stat-words-only').innerText = wordsOnlyCount;
 
-            // 閱讀時間（以中文平均每分鐘 350 字計算）
+            // Reading time based on ~350 chars/min
             const readSeconds = Math.ceil((wordsOnlyCount / 350) * 60);
-            document.getElementById('stat-read-time').innerText = readSeconds < 60 ? `${readSeconds} 秒` : `${Math.floor(readSeconds/60)} 分 ${readSeconds%60} 秒`;
+            if (readSeconds < 60) {
+                document.getElementById('stat-read-time').innerText = `${readSeconds} ${dict.unitSec}`;
+            } else {
+                const mins = Math.floor(readSeconds / 60);
+                const secs = readSeconds % 60;
+                document.getElementById('stat-read-time').innerText = `${mins} ${dict.unitMin} ${secs} ${dict.unitSec}`;
+            }
 
-            // Threads 進度條
+            // Threads Bar (Limit: 500)
             const threadsPercent = Math.min((totalCount / 500) * 100, 100);
             document.getElementById('threads-count').innerText = `${totalCount} / 500`;
             document.getElementById('threads-bar').style.width = `${threadsPercent}%`;
             document.getElementById('threads-bar').className = totalCount > 500 ? 'bg-rose-500 h-full' : 'bg-emerald-500 h-full';
 
-            // IG 進度條
+            // Instagram Bar (Limit: 2200)
             const igPercent = Math.min((totalCount / 2200) * 100, 100);
             document.getElementById('ig-count').innerText = `${totalCount} / 2200`;
             document.getElementById('ig-bar').style.width = `${igPercent}%`;
             document.getElementById('ig-bar').className = totalCount > 2200 ? 'bg-rose-500 h-full' : 'bg-blue-500 h-full';
         }
 
-        // Event Listeners
+        // --- Event Listeners ---
         textarea.addEventListener('input', updateStats);
 
-        // 轉香港繁體
         document.getElementById('btn-to-hk').addEventListener('click', () => {
             textarea.value = converterToHK(textarea.value);
             updateStats();
         });
 
-        // 轉簡體
         document.getElementById('btn-to-sim').addEventListener('click', () => {
             textarea.value = converterToSim(textarea.value);
             updateStats();
         });
 
-        // 排版整理
         document.getElementById('btn-clean').addEventListener('click', () => {
-            textarea.value = textarea.value.replace(/[ \t]+/g, ' ').replace(/\n\s*\n/g, '\n\n').trim();
+            textarea.value = textarea.value
+                .replace(/[ \t]+/g, ' ')
+                .replace(/\n\s*\n/g, '\n\n')
+                .trim();
             updateStats();
         });
 
-        // 一鍵清空
         document.getElementById('btn-clear').addEventListener('click', () => {
             textarea.value = '';
             updateStats();
