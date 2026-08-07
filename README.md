@@ -1,4 +1,4 @@
-# 智識計 | WordWise 💡
+# 字識計 | WordWise 💡
 
 > 🛡️ **100% Local. 0% Data Leak. ISO & Privacy-First Architecture.**  
 > 一款專為香港文字創作者、Marketer 與辦公室一族打造的零伺服器上傳、100% 離線運行、極速且支援香港在地化語境的文字統計與繁簡轉換工具。
